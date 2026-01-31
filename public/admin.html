@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | BNPL</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #050505;
+            font-size: 18px;
+        }
+
+        .sidebar {
+            width: 280px;
+            border-right: 1px solid #222;
+            padding: 30px 0;
+            background: #0a0a0a;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            padding: 0 24px 30px;
+            font-weight: 800;
+            color: #fff;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            padding: 16px 24px;
+            color: #888;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #111;
+            color: #d4af37;
+            border-left: 4px solid #d4af37;
+        }
+
+        .main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .tab {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: #111;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #222;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 10px;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            text-align: left;
+            padding: 18px;
+            color: #555;
+            border-bottom: 1px solid #222;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 18px;
+            border-bottom: 1px solid #111;
+            font-size: 16px;
+            color: #eee;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .pill {
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .pill-ok {
+            background: #064e3b;
+            color: #34d399;
+        }
+
+        .pill-warn {
+            background: #451a03;
+            color: #fbbf24;
+        }
+
+        .pill-bad {
+            background: #450a0a;
+            color: #f87171;
+        }
+
+        .user-link {
+            color: #d4af37;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .user-link:hover {
+            color: #fff;
+        }
+
+        .btn-action {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #888;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-ghost:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-box {
+            background: #0a0a0a;
+            padding: 40px;
+            border-radius: 20px;
+            width: 550px;
+            border: 1px solid #333;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+            color: #fff;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #d4af37;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">BNPL ADMIN</div>
+        <div class="nav-item active" id="nav-overview" onclick="tab('overview')">📊 Dashboard</div>
+        <div class="nav-item" id="nav-users" onclick="tab('users')">👥 Users</div>
+        <div class="nav-item" id="nav-kyc" onclick="tab('kyc')">🪪 KYC Queue</div>
+        <div class="nav-item" id="nav-orders" onclick="tab('orders')">📦 Orders</div>
+        <div class="nav-item" id="nav-installments" onclick="tab('installments')">💳 Overdue</div>
+        <div class="nav-item" style="color:#f87171; margin-top:auto;" onclick="location.href='/admin-login.html'">🚪
+            Logout</div>
+    </div>
+
+    <div class="main">
+        <!-- TAB: OVERVIEW -->
+        <div id="overview" class="tab active">
+            <h2>Overview</h2>
+            <div class="stat-grid" id="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="val-users">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Volume</div>
+                    <div class="stat-value" id="val-volume">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Overdue Items</div>
+                    <div class="stat-value" id="val-overdue" style="color:#f87171">--</div>
+                </div>
+            </div>
+
+            <h3>Critical Alerts</h3>
+            <div id="alerts" style="display:flex; flex-wrap:wrap; gap:15px;"></div>
+        </div>
+
+        <!-- TAB: USERS -->
+        <div id="users" class="tab">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Users</h2>
+                <input type="text" id="userSearch" class="search-bar" placeholder="Search by name, email, or ID..."
+                    oninput="renderU()">
+            </div>
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email / Phone</th>
+                        <th>Credit</th>
+                        <th>KYC</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- TAB: KYC -->
+        <div id="kyc" class="tab">
+            <h2>KYC Verification Queue</h2>
+            <div id="kycList"
+                style="display:grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap:20px; margin-top:20px;">
+            </div>
+        </div>
+
+        <!-- TAB: ORDERS -->
+        <div id="orders" class="tab">
+            <h2>Global Orders</h2>
+            <table id="orderTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- TAB: OVERDUE -->
+        <div id="installments" class="tab">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Overdue Control</h2>
+                <button class="btn-ghost" onclick="location.href='/admin/reports/export'">📥 Export CSV Report</button>
+            </div>
+            <table id="overdueTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Due Date</th>
+                        <th>Amount</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT USER -->
+    <div id="editModal" class="modal">
+        <div class="modal-box">
+            <h3 id="editTitle">Manage User</h3>
+            <div class="field"><label>Available Credit (₹)</label><input type="number" id="eCredit"></div>
+            <div class="field"><label>Risk Level</label><select id="eRisk">
+                    <option>LOW</option>
+                    <option>MEDIUM</option>
+                    <option>HIGH</option>
+                </select></div>
+            <div class="field"><label>Account Status</label><select id="eBlock">
+                    <option value="0">✅ Active</option>
+                    <option value="1">🚫 Blocked</option>
+                </select></div>
+            <div class="field"><label>Security Flag</label><select id="eFlag">
+                    <option value="0">🏳️ No Flag</option>
+                    <option value="1">🚩 Flagged</option>
+                </select></div>
+            <div class="field"><label>Flag Reason / Remarks</label><input id="eReason"
+                    placeholder="Mention why this user is flagged..."></div>
+            <div style="margin-top:30px; display:flex; gap:15px;">
+                <button class="btn-action" style="flex:1" onclick="save()">Save Changes</button>
+                <button class="btn-ghost" style="flex:1" onclick="closeM()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let currId = null;
+
+        async function tab(id, filter = '') {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + id).classList.add('active');
+
+            if (id === 'overview') loadS();
+            if (id === 'users') {
+                if (filter) document.getElementById('userSearch').value = filter;
+                loadU();
+            }
+            if (id === 'kyc') loadK();
+            if (id === 'orders') loadO();
+            if (id === 'installments') loadI();
+        }
+
+        async function loadS() {
+            try {
+                const res = await fetch('/admin/stats');
+                const data = await res.json();
+                if (!data.ok) return;
+                const s = data.stats;
+
+                document.getElementById('val-users').innerText = s.totalUsers;
+                document.getElementById('val-volume').innerText = '₹' + s.totalDisbursed.toLocaleString();
+                document.getElementById('val-overdue').innerText = s.overdueCount;
+
+                document.getElementById('alerts').innerHTML = `
+                    <div class="pill ${s.pendingKyc > 0 ? 'pill-warn' : 'pill-ok'}">Pending KYC: ${s.pendingKyc}</div>
+                    <div class="pill ${s.nearLimit > 0 ? 'pill-warn' : 'pill-ok'}">Near Credit Limit: ${s.nearLimit}</div>
+                    <div class="pill ${s.overdueCount > 0 ? 'pill-bad' : 'pill-ok'}">Overdue Item Count: ${s.overdueCount}</div>
+                `;
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadU() {
+            const res = await fetch('/admin/users');
+            const data = await res.json();
+            if (data.ok) {
+                allUsers = data.users;
+                renderU();
+            }
+        }
+
+        function renderU() {
+            const term = document.getElementById('userSearch').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                u.name.toLowerCase().includes(term) ||
+                u.email.toLowerCase().includes(term) ||
+                u.id.toString() === term
+            );
+
+            document.getElementById('userTable').querySelector('tbody').innerHTML = filtered.map(u => `
+                <tr>
+                    <td><b>${u.name}</b><br><small style="color:#666">ID: #${u.id}</small></td>
+                    <td>${u.email}<br><small style="color:#666">${u.phone}</small></td>
+                    <td>₹${u.available_credit.toLocaleString()}</td>
+                    <td><span class="pill ${u.kyc_status === 'APPROVED' ? 'pill-ok' : u.kyc_status === 'REJECTED' ? 'pill-bad' : 'pill-warn'}">${u.kyc_status || 'PENDING'}</span></td>
+                    <td><span class="pill ${u.risk_level === 'LOW' ? 'pill-ok' : u.risk_level === 'HIGH' ? 'pill-bad' : 'pill-warn'}">${u.risk_level}</span></td>
+                    <td>${u.is_blocked ? '<span class="pill pill-bad">Blocked</span>' : '<span class="pill pill-ok">Active</span>'}${u.is_flagged ? '<span class="pill pill-warn">🚩 Flagged</span>' : ''}</td>
+                    <td><button class="btn-action" onclick='edit(${JSON.stringify(u)})'>Manage</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function edit(u) {
+            currId = u.id;
+            document.getElementById('editTitle').innerText = 'Manage: ' + u.name;
+            document.getElementById('eCredit').value = u.available_credit;
+            document.getElementById('eRisk').value = u.risk_level;
+            document.getElementById('eBlock').value = u.is_blocked;
+            document.getElementById('eFlag').value = u.is_flagged;
+            document.getElementById('eReason').value = u.flag_reason || '';
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        async function save() {
+            const payload = {
+                available_credit: document.getElementById('eCredit').value,
+                risk_level: document.getElementById('eRisk').value,
+                is_blocked: document.getElementById('eBlock').value,
+                is_flagged: document.getElementById('eFlag').value,
+                flag_reason: document.getElementById('eReason').value
+            };
+            await fetch(`/admin/user/${currId}/update`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            closeM(); loadU();
+        }
+
+        async function loadK() {
+            const res = await fetch('/admin/kyc/pending');
+            const data = await res.json();
+            if (data.ok) {
+                document.getElementById('kycList').innerHTML = data.pending.length ? data.pending.map(k => `
+                    <div class="stat-card">
+                        <div style="display:flex; justify-content:space-between; align-items:start;">
+                            <div>
+                                <h4 style="font-size:20px; color:#d4af37">${k.full_name}</h4>
+                                <p style="font-size:14px; margin-top:5px; color:#888">${k.id_type}: ${k.id_number}</p>
+                            </div>
+                            <span class="pill pill-warn">PENDING</span>
+                        </div>
+                        <div style="margin-top:15px; font-size:14px; color:#aaa">
+                            📍 ${k.address}<br>📅 DOB: ${k.dob}<br>📞 ${k.phone}<br>🎓 ${k.enrollment_type}
+                        </div>
+                        <div style="margin-top:20px; display:flex; gap:10px;">
+                            <button class="btn-action" style="flex:1" onclick='resolve(${k.id},"APPROVED")'>Approve</button>
+                            <button class="btn-ghost" style="flex:1; border-color:#f87171; color:#f87171" onclick='resolve(${k.id},"REJECTED")'>Reject</button>
+                        </div>
+                    </div>
+                `).join('') : '<div class="stat-card" style="grid-column: span 12; text-align:center; color:#555">No pending KYC approvals.</div>';
+            }
+        }
+
+        async function resolve(id, status) {
+            const remarks = prompt('Admin remarks (optional):');
+            await fetch(`/admin/kyc/${id}/resolve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, remarks })
+            });
+            loadK();
+        }
+
+        async function loadO() {
+            const res = await fetch('/admin/orders');
+            const data = await res.json();
+            if (data.ok) {
+                document.getElementById('orderTable').querySelector('tbody').innerHTML = data.orders.map(o => `
+                    <tr>
+                        <td>#${o.id}</td>
+                        <td class="user-link" onclick="tab('users', '${o.user_name}')">${o.user_name}</td>
+                        <td>${o.product_name}</td>
+                        <td>₹${o.total_amount.toLocaleString()}</td>
+                        <td><span class="pill ${o.status === 'ACTIVE' ? 'pill-ok' : 'pill-warn'}">${o.status}</span></td>
+                        <td>${new Date(o.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadI() {
+            const res = await fetch('/admin/installments/overdue');
+            const data = await res.json();
+            if (data.ok) {
+                document.getElementById('overdueTable').querySelector('tbody').innerHTML = data.overdue.map(i => `
+                    <tr>
+                        <td class="user-link" onclick="tab('users', '${i.user_name}')">${i.user_name}</td>
+                        <td><span style="color:#f87171">${i.due_date}</span></td>
+                        <td>₹${i.amount.toLocaleString()}</td>
+                        <td>${i.phone}</td>
+                        <td><button class="btn-action" onclick="pay(${i.id})">Mark Paid</button></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function pay(id) {
+            await fetch(`/admin/installment/${id}/pay`, { method: 'POST' });
+            loadI();
+        }
+
+        function closeM() { document.getElementById('editModal').style.display = 'none'; }
+
+        // Initial load
+        loadS();
+    </script>
+</body>
+
+</html>

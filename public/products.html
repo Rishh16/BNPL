@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BNPL | Products</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="navbar">
+    <div class="navwrap">
+      <div class="brand">BNPL <span class="badge">Shop</span></div>
+
+      <div style="display:flex; gap:10px;">
+        <a class="btn btn-outline" href="cart.html">
+          Cart (<span id="cartCount">0</span>)
+        </a>
+        <a class="btn btn-outline" href="split-bnpl.html">Group Buy</a>
+        <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Shop Products</h2>
+
+    <!-- Category buttons -->
+    <div style="margin:16px 0;">
+      <button class="btn btn-outline" onclick="loadProducts()">All</button>
+      <button class="btn btn-outline" onclick="loadProducts('Electronics')">Electronics</button>
+      <button class="btn btn-outline" onclick="loadProducts('Gadgets')">Gadgets</button>
+      <button class="btn btn-outline" onclick="loadProducts('Clothing')">Clothing</button>
+      <button class="btn btn-outline" onclick="loadProducts('Accessories')">Accessories</button>
+      <button class="btn btn-outline" onclick="loadProducts('Footwear')">Footwear</button>
+      <button class="btn btn-outline" onclick="loadProducts('Food & Grocery')">Food & Grocery</button>
+      <button class="btn btn-outline" onclick="loadProducts('Beauty & Personal Care')">Beauty & Personal Care</button>
+    </div>
+
+    <!-- Products grid -->
+    <div class="grid" id="products"></div>
+  </div>
+
+  <script>
+    // ✅ Cart count (Amazon-style)
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+
+      const el = document.getElementById("cartCount");
+      if (el) el.innerText = count;
+    }
+
+    async function loadProducts(category = "") {
+      let url = "/products";
+      if (category) url += "?category=" + encodeURIComponent(category);
+
+      const res = await fetch(url);
+      const products = await res.json();
+
+      const box = document.getElementById("products");
+      box.innerHTML = "";
+
+      products.forEach(p => {
+        box.innerHTML += `
+          <div class="col-4">
+            <div class="card">
+
+              <!-- IMAGE -->
+              <img 
+                src="/img/${p.image}" 
+                style="width:100%; height:180px; object-fit:cover; border-radius:12px; margin-bottom:12px;"
+                alt="${p.name}"
+              >
+
+              <h3>${p.name}</h3>
+              <p class="subtitle">${p.category}</p>
+              <h2>₹${p.price}</h2>
+
+              <!-- ✅ TWO BUTTONS -->
+              <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+                <button class="btn btn-outline"
+                  onclick="addToCart('${escapeQuotes(p.name)}', ${p.price}, '${escapeQuotes(p.image)}', '${escapeQuotes(p.category)}')">
+                  Add to Cart
+                </button>
+
+                <button class="btn btn-primary"
+                  onclick="buyWithBNPL('${escapeQuotes(p.name)}', ${p.price}, '${escapeQuotes(p.image)}')">
+                  Buy with BNPL
+                </button>
+              </div>
+
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ✅ Store selected product info for dashboard auto-fill
+    function buyWithBNPL(productName, price, image) {
+      localStorage.setItem("bnpl_amount", price);
+      localStorage.setItem("bnpl_product_name", productName);
+      localStorage.setItem("bnpl_product_image", image);
+
+      window.location.href = "dashboard.html";
+    }
+
+    // ✅ Add to cart (localStorage cart)
+    function addToCart(name, price, image, category){
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+      const existing = cart.find(x => x.name === name && x.price === price);
+      if(existing){
+        existing.qty += 1;
+      }else{
+        cart.push({ name, price, image, category, qty: 1 });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+
+      updateCartCount();   // ✅ updates instantly
+      alert("Added to cart ✅");
+    }
+
+    // helper so quotes don't break onclick
+    function escapeQuotes(str) {
+      return String(str).replace(/'/g, "\\'");
+    }
+
+    // ✅ initial load
+    updateCartCount();
+    loadProducts();
+  </script>
+
+</body>
+</html>

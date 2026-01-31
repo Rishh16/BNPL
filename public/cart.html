@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BNPL | Cart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="navwrap">
+      <div class="brand">BNPL <span class="badge">Cart</span></div>
+      <div>
+        <a class="btn btn-outline" href="products.html">Browse Products</a>
+        <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Your Cart</h2>
+    <p class="subtitle">Review items, then checkout with BNPL.</p>
+
+    <div id="cartBox" style="margin-top:16px;"></div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Total</h3>
+      <h1 id="total">₹0</h1>
+
+      <div style="display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="clearCart()">Clear Cart</button>
+        <button class="btn btn-primary" onclick="checkoutBNPL()">Checkout with BNPL</button>
+      </div>
+
+      <div style="margin-top:10px; opacity:.75; font-size:13px;">
+        Checkout will auto-fill the BNPL amount on dashboard.
+      </div>
+    </div>
+  </div>
+
+<script>
+function getCart(){
+  return JSON.parse(localStorage.getItem("cart") || "[]");
+}
+function setCart(cart){
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+function money(n){ return "₹" + Number(n).toLocaleString(); }
+
+function renderCart(){
+  const cart = getCart();
+  const box = document.getElementById("cartBox");
+
+  if(cart.length === 0){
+    box.innerHTML = `<div class="notice">Your cart is empty.</div>`;
+    document.getElementById("total").innerText = "₹0";
+    return;
+  }
+
+  let total = 0;
+
+  box.innerHTML = cart.map((item, idx) => {
+    const line = item.price * item.qty;
+    total += line;
+
+    return `
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex; gap:14px; align-items:center;">
+          <img src="/img/${item.image}" alt="${item.name}"
+               style="width:90px; height:90px; object-fit:cover; border-radius:12px;">
+
+          <div style="flex:1;">
+            <h3 style="margin:0;">${item.name}</h3>
+            <div class="subtitle">${item.category || ""}</div>
+            <div style="margin-top:8px; opacity:.9;">
+              Price: <b>${money(item.price)}</b> &nbsp; | &nbsp;
+              Qty: <b>${item.qty}</b> &nbsp; | &nbsp;
+              Line Total: <b>${money(line)}</b>
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="changeQty(${idx}, -1)">-</button>
+              <button class="btn btn-outline" onclick="changeQty(${idx}, 1)">+</button>
+              <button class="btn btn-outline" onclick="removeItem(${idx})">Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("total").innerText = money(total);
+}
+
+function changeQty(index, delta){
+  const cart = getCart();
+  cart[index].qty += delta;
+  if(cart[index].qty <= 0) cart.splice(index, 1);
+  setCart(cart);
+  renderCart();
+}
+
+function removeItem(index){
+  const cart = getCart();
+  cart.splice(index, 1);
+  setCart(cart);
+  renderCart();
+}
+
+function clearCart(){
+  localStorage.removeItem("cart");
+  renderCart();
+}
+
+function checkoutBNPL(){
+  const cart = getCart();
+  if(cart.length === 0){
+    alert("Cart is empty");
+    return;
+  }
+
+  const total = cart.reduce((s, x) => s + (x.price * x.qty), 0);
+
+  // Send total to BNPL dashboard
+  localStorage.setItem("bnpl_amount", total);
+  localStorage.setItem("bnpl_product_name", `Cart Checkout (${cart.length} items)`);
+
+  // Optional: store summary (for success page later)
+  localStorage.setItem("bnpl_cart_summary", cart.map(x => `${x.name} x${x.qty}`).join(", "));
+
+  window.location.href = "dashboard.html";
+}
+
+renderCart();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split BNPL - Test & Debug</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000000;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #d4af37;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            color: #d4af37;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        button {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+        
+        button:hover {
+            background: #e0d565;
+        }
+        
+        .log-box {
+            background: #000;
+            border: 1px solid #c0c0c0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+            color: #00ff00;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff4444; }
+        .log-info { color: #00ccff; }
+        .log-warning { color: #ffaa00; }
+        
+        input, select {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #d4af37;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 1em;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            background: #333;
+            border-color: #ffff00;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            color: #d4af37;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .status-box {
+            background: #1a3a1a;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .status-label {
+            color: #d4af37;
+            font-weight: bold;
+        }
+        
+        .result-box {
+            background: #1a1a3a;
+            border: 1px solid #0099ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Split BNPL - Debug & Test Console</h1>
+        
+        <!-- Session Check -->
+        <div class="test-section">
+            <div class="test-title">1️⃣ Session & Authentication Check</div>
+            <button onclick="checkSession()">Check Current Session</button>
+            <button onclick="checkUser()">Get User Info</button>
+            <div id="sessionLog" class="log-box"></div>
+        </div>
+        
+        <!-- API Endpoint Test -->
+        <div class="test-section">
+            <div class="test-title">2️⃣ Test Create Group API</div>
+            <div class="form-group">
+                <label>Product Name:</label>
+                <input type="text" id="testProductName" value="Test Laptop" placeholder="e.g., Laptop">
+            </div>
+            <div class="form-group">
+                <label>Category:</label>
+                <select id="testCategory">
+                    <option value="Electronics">Electronics</option>
+                    <option value="Gadgets">Gadgets</option>
+                    <option value="Clothing">Clothing</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Total Amount (₹):</label>
+                <input type="number" id="testAmount" value="12000" placeholder="e.g., 12000">
+            </div>
+            <div class="form-group">
+                <label>Duration (months):</label>
+                <select id="testMonths">
+                    <option value="3">3 months</option>
+                    <option value="6">6 months</option>
+                    <option value="12">12 months</option>
+                </select>
+            </div>
+            <button onclick="testCreateGroup()">🚀 Test Create Group</button>
+            <button onclick="clearTestLogs()">Clear Logs</button>
+            <div id="testLog" class="log-box"></div>
+            <div id="testResult" class="result-box" style="display:none;"></div>
+        </div>
+        
+        <!-- DOM Check -->
+        <div class="test-section">
+            <div class="test-title">3️⃣ DOM & Modal Check</div>
+            <button onclick="checkDOM()">Check Modal Elements</button>
+            <button onclick="testModalDisplay()">Test Modal Display</button>
+            <button onclick="hideTestModal()">Hide Modal</button>
+            <div id="domLog" class="log-box"></div>
+        </div>
+        
+        <!-- Function Test -->
+        <div class="test-section">
+            <div class="test-title">4️⃣ Function Availability Check</div>
+            <button onclick="checkFunctions()">Check Functions</button>
+            <div id="funcLog" class="log-box"></div>
+        </div>
+        
+        <!-- Manual Modal Trigger -->
+        <div class="test-section">
+            <div class="test-title">5️⃣ Manual Modal Trigger</div>
+            <button onclick="manualShowModal()">Show Success Modal (Test)</button>
+            <button onclick="manualCloseModal()">Close Modal</button>
+            <div id="manualLog" class="log-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // LOGGING HELPER
+        // ============================================================
+        function log(logId, message, type = 'info') {
+            const logBox = document.getElementById(logId);
+            if (!logBox) return;
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'info': 'ℹ️',
+                'warning': '⚠️'
+            };
+            
+            entry.textContent = `[${timestamp}] ${icons[type] || ''} ${message}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+        
+        // ============================================================
+        // TEST 1: SESSION CHECK
+        // ============================================================
+        async function checkSession() {
+            log('sessionLog', 'Checking session...', 'info');
+            try {
+                const response = await fetch('http://localhost:5001/get-session', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                log('sessionLog', `Session Status: ${data.logged_in ? 'LOGGED IN' : 'NOT LOGGED IN'}`, data.logged_in ? 'success' : 'error');
+                log('sessionLog', `User ID: ${data.user_id || 'N/A'}`, 'info');
+                log('sessionLog', `User Name: ${data.user_name || 'N/A'}`, 'info');
+            } catch (e) {
+                log('sessionLog', `Error: ${e.message}`, 'error');
+            }
+        }
+        
+        async function checkUser() {
+            log('sessionLog', 'Fetching user info...', 'info');
+            try {
+                const response = await fetch('http://localhost:5001/user-info', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.error) {
+                    log('sessionLog', `Error: ${data.error}`, 'error');
+                } else {
+                    log('sessionLog', `User: ${data.name} (ID: ${data.id})`, 'success');
+                    log('sessionLog', `KYC: ${data.kyc_approved ? 'APPROVED ✅' : 'NOT APPROVED ❌'}`, 'info');
+                    log('sessionLog', `Credit: ₹${data.available_credit}`, 'info');
+                }
+            } catch (e) {
+                log('sessionLog', `Error: ${e.message}`, 'error');
+            }
+        }
+        
+        // ============================================================
+        // TEST 2: CREATE GROUP API
+        // ============================================================
+        async function testCreateGroup() {
+            const productName = document.getElementById('testProductName').value;
+            const category = document.getElementById('testCategory').value;
+            const amount = parseInt(document.getElementById('testAmount').value);
+            const months = parseInt(document.getElementById('testMonths').value);
+            
+            log('testLog', `Creating group: ${productName} - ₹${amount} - ${months}mo`, 'info');
+            log('testLog', `Endpoint: http://localhost:5001/split-bnpl/create-group`, 'info');
+            
+            const payload = {
+                total_amount: amount,
+                product_name: productName,
+                product_category: category,
+                months: months
+            };
+            
+            log('testLog', `Payload: ${JSON.stringify(payload)}`, 'info');
+            
+            try {
+                log('testLog', 'Sending request...', 'info');
+                
+                const response = await fetch('http://localhost:5001/split-bnpl/create-group', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+                
+                log('testLog', `HTTP Status: ${response.status}`, response.ok ? 'success' : 'error');
+                log('testLog', `Response OK: ${response.ok}`, response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                log('testLog', `Response received`, 'success');
+                
+                const resultBox = document.getElementById('testResult');
+                resultBox.textContent = JSON.stringify(data, null, 2);
+                resultBox.style.display = 'block';
+                
+                if (data.group_id) {
+                    log('testLog', `✅✅✅ SUCCESS! Group ID: ${data.group_id}`, 'success');
+                    log('testLog', `Individual Share: ₹${data.individual_share}`, 'info');
+                    log('testLog', `Monthly EMI: ₹${data.individual_emi}`, 'info');
+                } else if (data.error) {
+                    log('testLog', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                log('testLog', `❌ Network/Parse Error: ${e.message}`, 'error');
+                log('testLog', `Stack: ${e.stack}`, 'error');
+            }
+        }
+        
+        function clearTestLogs() {
+            document.getElementById('testLog').innerHTML = '';
+            document.getElementById('testResult').style.display = 'none';
+        }
+        
+        // ============================================================
+        // TEST 3: DOM & MODAL CHECK
+        // ============================================================
+        function checkDOM() {
+            log('domLog', 'Checking DOM elements...', 'info');
+            
+            const modal = document.getElementById('groupSuccessModal');
+            log('domLog', `Modal element exists: ${modal ? '✅' : '❌'}`, modal ? 'success' : 'error');
+            
+            if (modal) {
+                log('domLog', `Modal display: ${window.getComputedStyle(modal).display}`, 'info');
+                log('domLog', `Modal classes: ${modal.className}`, 'info');
+                log('domLog', `Modal z-index: ${window.getComputedStyle(modal).zIndex}`, 'info');
+                
+                const children = [
+                    'modalGroupId',
+                    'modalProductName',
+                    'modalTotalAmount',
+                    'modalYourShare',
+                    'modalDuration',
+                    'modalMonthlyEMI'
+                ];
+                
+                children.forEach(id => {
+                    const elem = document.getElementById(id);
+                    log('domLog', `${id}: ${elem ? '✅' : '❌'}`, elem ? 'success' : 'error');
+                });
+            }
+        }
+        
+        function testModalDisplay() {
+            log('domLog', 'Testing modal display...', 'info');
+            
+            try {
+                document.getElementById('modalGroupId').textContent = 'TEST_GROUP_ID_12345';
+                document.getElementById('modalProductName').textContent = 'Test Product';
+                document.getElementById('modalTotalAmount').textContent = '₹12000';
+                document.getElementById('modalYourShare').textContent = '₹4000';
+                document.getElementById('modalDuration').textContent = '3 months';
+                document.getElementById('modalMonthlyEMI').textContent = '₹1333';
+                
+                const modal = document.getElementById('groupSuccessModal');
+                if (!modal.classList.contains('show')) {
+                    modal.classList.add('show');
+                    log('domLog', `✅ Added 'show' class to modal`, 'success');
+                } else {
+                    log('domLog', `Modal already has 'show' class`, 'warning');
+                }
+                
+                log('domLog', `Modal display: ${window.getComputedStyle(modal).display}`, 'info');
+            } catch (e) {
+                log('domLog', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+        
+        function hideTestModal() {
+            document.getElementById('groupSuccessModal').classList.remove('show');
+            log('domLog', `Removed 'show' class from modal`, 'success');
+        }
+        
+        // ============================================================
+        // TEST 4: FUNCTION CHECK
+        // ============================================================
+        function checkFunctions() {
+            log('funcLog', 'Checking function availability...', 'info');
+            
+            const functions = [
+                'showGroupSuccessModal',
+                'closeGroupModal',
+                'copyGroupId',
+                'viewMyGroupDetails',
+                'loadMyGroups',
+                'switchTab'
+            ];
+            
+            functions.forEach(func => {
+                const exists = typeof window[func] === 'function';
+                log('funcLog', `${func}: ${exists ? '✅' : '❌'}`, exists ? 'success' : 'error');
+            });
+        }
+        
+        // ============================================================
+        // TEST 5: MANUAL MODAL TRIGGER
+        // ============================================================
+        function manualShowModal() {
+            log('manualLog', 'Attempting to call showGroupSuccessModal...', 'info');
+            try {
+                showGroupSuccessModal('TEST_GROUP_MANUAL_123', 'Test Product', 12000, 3);
+                log('manualLog', `✅ showGroupSuccessModal called successfully`, 'success');
+                log('manualLog', `Modal should now be visible`, 'info');
+            } catch (e) {
+                log('manualLog', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+        
+        function manualCloseModal() {
+            log('manualLog', 'Attempting to call closeGroupModal...', 'info');
+            try {
+                closeGroupModal();
+                log('manualLog', `✅ closeGroupModal called successfully`, 'success');
+            } catch (e) {
+                log('manualLog', `❌ Error: ${e.message}`, 'error');
+            }
+        }
+        
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            log('sessionLog', '🧪 Test console loaded', 'info');
+            log('funcLog', '🧪 Test console loaded', 'info');
+        });
+    </script>
+
+    <!-- Include the main split-bnpl HTML to access its functions -->
+    <iframe src="split-bnpl.html" style="display: none;"></iframe>
+</body>
+</html>

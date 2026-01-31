@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>KYC Verification | BNPL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Optional Navbar (remove if you don’t want) -->
+  <div class="navbar">
+    <div class="navwrap">
+      <div class="brand">BNPL <span class="badge">KYC</span></div>
+      <div>
+        <a href="dashboard.html" class="btn btn-outline">Dashboard</a>
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="kyc-wrap">
+    <div class="card kyc-card">
+
+      <div class="kyc-title">KYC Verification</div>
+      <div class="kyc-sub">Complete verification to activate BNPL</div>
+
+      <form id="kycForm" class="kyc-grid">
+        <input class="kyc-full" type="text" name="full_name" placeholder="Full Name" required />
+        <div class="kyc-full" style="color: #666; font-size: 0.8em; margin-bottom: -15px;">Date of Birth (Eligibility:
+          18+ years)</div>
+        <input type="date" name="dob" id="kyc_dob" required />
+        <input class="kyc-full" type="text" name="phone" id="kyc_phone" placeholder="Phone Number" required />
+        <input class="kyc-full" type="text" name="address" placeholder="Address" required />
+        <input class="kyc-full" type="text" name="remarks" placeholder="Remarks" />
+
+        <select name="id_type" required>
+          <option value="">Select ID Type</option>
+          <option value="PAN">PAN</option>
+          <option value="AADHAAR">Aadhaar</option>
+          <option value="DL">Driving License</option>
+          <option value="VOTER">Voter ID</option>
+        </select>
+
+        <div class="kyc-full" style="display: flex; gap: 10px;">
+          <input type="text" name="id_number" id="id_number" placeholder="ID Number" style="flex: 1;" required />
+          <button type="button" class="btn btn-outline" id="sendAadhaarOtpBtn" onclick="sendAadhaarOTP()"
+            style="white-space: nowrap; display: none;">Verify Aadhaar</button>
+        </div>
+        <input class="kyc-full" type="text" name="otp" id="kyc_otp_input" placeholder="Enter OTP (sent to linked phone)"
+          style="display: none;" />
+
+        <select class="kyc-full" name="enrollment_type" required>
+          <option value="">Enrollment Type</option>
+          <option value="STUDENT">Student</option>
+          <option value="EMPLOYED">Employee</option>
+          <option value="SELF_EMPLOYED">Self Employed</option>
+          <option value="UNEMPLOYED">Others</option>
+        </select>
+
+        <div class="kyc-actions kyc-full">
+          <button class="btn btn-primary" type="submit">Submit KYC</button>
+        </div>
+      </form>
+
+      <div id="kycStatus" class="kyc-status" style="display:none;"></div>
+
+    </div>
+  </div>
+
+  <script>
+    function setStatus(type, text) {
+      const el = document.getElementById("kycStatus");
+      el.style.display = "block";
+      el.className = "kyc-status " + (type || "");
+      el.textContent = text || "";
+    }
+
+    async function checkLoginAndKyc() {
+      // Check login
+      const meRes = await fetch("/auth/me", { credentials: "include" });
+      if (!meRes.ok) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      // Check KYC status
+      const res = await fetch("/api/kyc/status", { credentials: "include" });
+      const data = await res.json();
+
+      if (data.kyc_status === "APPROVED") {
+        setStatus("approved", "KYC Approved ✔ Redirecting...");
+        setTimeout(() => {
+          window.location.href = "/dashboard.html";
+        }, 900);
+      } else if (data.kyc_status === "PENDING") {
+        setStatus("pending", "KYC Pending Approval ⏳");
+      } else if (data.kyc_status === "REJECTED") {
+        setStatus("rejected", "KYC Rejected ❌ Please resubmit");
+      } else {
+        // NOT_SUBMITTED
+        const el = document.getElementById("kycStatus");
+        el.style.display = "none";
+        el.textContent = "";
+      }
+    }
+
+    document.getElementById("kycForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const payload = Object.fromEntries(formData.entries());
+
+      const res = await fetch("/api/kyc/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      if (result.ok) {
+        setStatus("approved", result.message || "KYC Approved ✔ Redirecting...");
+        // after submit, your backend auto-approves -> go dashboard quickly
+        setTimeout(() => {
+          window.location.href = "/dashboard.html";
+        }, 900);
+      } else {
+        setStatus("rejected", result.message || result.error || "Something went wrong");
+      }
+
+      // re-check from backend
+      checkLoginAndKyc();
+    });
+
+    async function logout() {
+      try {
+        await fetch("/auth/logout", { credentials: "include" });
+      } catch (e) { }
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+
+
+    const idTypeSelect = document.querySelector('select[name="id_type"]');
+    const idNumberInput = document.getElementById("id_number");
+    const sendAadhaarOtpBtn = document.getElementById("sendAadhaarOtpBtn");
+    const otpInput = document.getElementById("kyc_otp_input");
+
+    idTypeSelect.addEventListener("change", function () {
+      if (this.value === "AADHAAR") {
+        sendAadhaarOtpBtn.style.display = "block";
+        otpInput.required = true;
+      } else {
+        sendAadhaarOtpBtn.style.display = "none";
+        otpInput.style.display = "none";
+        otpInput.required = false;
+      }
+    });
+
+    async function sendAadhaarOTP() {
+      const idNumber = idNumberInput.value;
+      if (!idNumber) {
+        setStatus("rejected", "Please enter Aadhaar number first.");
+        return;
+      }
+
+      sendAadhaarOtpBtn.disabled = true;
+      sendAadhaarOtpBtn.textContent = "Checking...";
+
+      try {
+        const res = await fetch("/api/kyc/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ id_type: "AADHAAR", id_number: idNumber }),
+        });
+        const result = await res.json();
+        if (result.ok) {
+          setStatus("pending", result.message);
+          otpInput.style.display = "block";
+          otpInput.focus();
+          sendAadhaarOtpBtn.textContent = "Resend OTP";
+        } else {
+          setStatus("rejected", result.message || "Failed to send OTP.");
+          sendAadhaarOtpBtn.textContent = "Verify Aadhaar";
+        }
+      } catch (err) {
+        console.error("OTP Error:", err);
+        setStatus("rejected", "Error: " + err.message);
+        sendAadhaarOtpBtn.textContent = "Verify Aadhaar";
+      } finally {
+        setTimeout(() => { sendAadhaarOtpBtn.disabled = false; }, 5000);
+      }
+    }
+
+    checkLoginAndKyc();
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BNPL | Success</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="center">
+  <div class="card">
+    <h2 class="heroTitle">🎉 BNPL Order Confirmed</h2>
+    <p class="heroSub">Your BNPL plan has been activated successfully</p>
+
+    <div id="details" style="margin-top:20px;"></div>
+
+    <button class="btn btn-primary" onclick="goDashboard()">
+      Go to Dashboard
+    </button>
+  </div>
+</div>
+
+<script>
+const amount = localStorage.getItem("bnpl_amount");
+const months = localStorage.getItem("bnpl_months");
+
+document.getElementById("details").innerHTML = `
+  <p><b>Amount:</b> ₹${amount}</p>
+  <p><b>Installment Plan:</b> ${months} Months</p>
+  <p><b>Monthly EMI:</b> ₹${Math.ceil(amount / months)}</p>
+`;
+
+async function saveOrder() {
+  if (!amount || !months) return;
+
+  await fetch("/order/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+
+    // ✅ REQUIRED FOR SESSION
+    credentials: "include",
+
+    body: JSON.stringify({
+      amount: amount,
+      months: months
+    })
+  });
+}
+
+saveOrder();
+
+function goDashboard() {
+  window.location.href = "dashboard.html";
+}
+</script>
+
+</body>
+</html>

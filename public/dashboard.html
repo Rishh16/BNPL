@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>BNPL | Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ✅ Order History alignment fix */
+    .order-wrap {
+      overflow-x: auto;
+    }
+
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-top: 10px;
+    }
+
+    .order-table th,
+    .order-table td {
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, .15);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+
+    .order-table th:nth-child(1),
+    .order-table td:nth-child(1) {
+      width: 38%;
+    }
+
+    .order-table th:nth-child(2),
+    .order-table td:nth-child(2) {
+      width: 20%;
+    }
+
+    .order-table th:nth-child(3),
+    .order-table td:nth-child(3) {
+      width: 14%;
+    }
+
+    .order-table th:nth-child(4),
+    .order-table td:nth-child(4) {
+      width: 14%;
+    }
+
+    .order-table th:nth-child(5),
+    .order-table td:nth-child(5) {
+      width: 14%;
+      text-align: center;
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .PAID {
+      background: rgba(34, 197, 94, .18);
+      color: #4ade80;
+    }
+
+    .ACTIVE {
+      background: rgba(250, 204, 21, .15);
+      color: #facc15;
+    }
+
+    .OVERDUE {
+      background: rgba(248, 113, 113, .16);
+      color: #f87171;
+    }
+
+    /* ✅ Risk badge colors */
+    .LOW {
+      background: rgba(34, 197, 94, .18);
+      color: #4ade80;
+    }
+
+    .MEDIUM {
+      background: rgba(250, 204, 21, .15);
+      color: #facc15;
+    }
+
+    .HIGH {
+      background: rgba(248, 113, 113, .16);
+      color: #f87171;
+    }
+
+    .muted {
+      opacity: .8;
+      font-size: 13px;
+    }
+
+    /* ✅ MODAL STYLES */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      margin: 10% auto;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 90%;
+      max-width: 600px;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      color: #aaa;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    .inst-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .inst-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <div class="navbar">
+    <div class="navwrap">
+      <div class="brand">BNPL <span class="badge">Dashboard</span></div>
+      <div>
+        <a href="admin-login.html" id="adminBtn" class="btn btn-outline"
+          style="border-color: #d4af37; color: #d4af37; display: none;">Admin
+          Panel</a>
+        <a href="products.html" class="btn btn-outline">Browse Products</a>
+        <a href="split-bnpl.html" class="btn btn-outline">Group Buy (Split-BNPL)</a>
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTALLMENT MODAL -->
+  <div id="instModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3 id="modalTitle">Installments</h3>
+      <div id="modalList" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- USER WELCOME -->
+    <h2 id="welcome"></h2>
+    <p>Manage your BNPL credit and create new BNPL orders.</p>
+
+    <!-- CREDIT INFO -->
+    <div class="card" style="margin-top:20px;">
+      <h3>Available Credit</h3>
+      <h1 id="availableCredit">₹0</h1>
+      <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+        <span class="status-badge PAID" id="kycBadge">KYC Verified ✔</span>
+        <span class="status-badge ACTIVE" id="streakBadge">On-time Streak: <span id="streakCount">0</span>/3 🔥</span>
+      </div>
+      <div class="muted" style="margin-top: 5px;">This is fetched from backend (users.available_credit).</div>
+      <div id="streakMsg" class="muted" style="margin-top: 5px; font-size: 0.85em; color: #facc15;">
+        💡 Pay 3 installments on time to get a **₹5,000 credit boost!**
+      </div>
+    </div>
+
+    <!-- ✅ RISK CARD (NEW) -->
+    <div class="card" id="riskCard" style="margin-top:20px; display:none;">
+      <h3>Risk Status</h3>
+      <p style="margin-top:8px;">
+        <span id="riskLevel" class="status-badge MEDIUM">MEDIUM</span>
+        <span class="muted" style="margin-left:10px;">Score: <b id="riskScore">--</b>/100</span>
+      </p>
+      <div class="muted" id="riskMsg" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- SELECTED PRODUCT INFO -->
+    <div class="card" style="margin-top:20px;">
+      <h3>Selected Product</h3>
+      <p id="selectedProduct" style="margin-top:8px; opacity:.85;">No product selected</p>
+    </div>
+
+    <!-- ENTER AMOUNT -->
+    <div style="margin-top:20px;">
+      <label>Enter Amount</label>
+      <input id="amount" type="number" placeholder="Select a product to auto-fill" oninput="calculateBNPL()" />
+
+      <div id="creditMsg" style="margin-top:10px; font-size:14px;"></div>
+
+      <div style="margin-top:8px; opacity:.75; font-size:13px;">
+        Tip: choose a product from <b>Browse Products</b> to auto-fill amount.
+      </div>
+    </div>
+
+    <!-- INSTALLMENT OPTIONS -->
+    <div id="installments" style="display:none; margin-top:20px;">
+      <h3>Select Installment Plan</h3>
+
+      <div class="installment-box">
+        <div class="installment-card" id="plan3" onclick="selectPlan(3)">
+          3 Months<br><b id="i3"></b>
+        </div>
+
+        <div class="installment-card" id="plan6" onclick="selectPlan(6)">
+          6 Months<br><b id="i6"></b>
+        </div>
+
+        <div class="installment-card" id="plan12" onclick="selectPlan(12)">
+          12 Months<br><b id="i12"></b>
+        </div>
+      </div>
+    </div>
+
+    <button id="confirmBtn" class="btn btn-primary" style="margin-top:20px;" onclick="confirmBNPL()" disabled>
+      Confirm BNPL
+    </button>
+
+    <!-- ORDER HISTORY -->
+    <div class="card" style="margin-top:30px;">
+      <h3>Personal Orders</h3>
+      <div class="muted">Your individual BNPL purchases.</div>
+
+      <div class="order-wrap">
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Purchased Date</th>
+              <th>Price (₹)</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="personalOrderBody">
+            <tr>
+              <td colspan="5" class="muted">Loading...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:30px;">
+      <h3>Grouped Orders (Split-BNPL)</h3>
+      <div class="muted">Orders where you shared the cost with friends.</div>
+
+      <div class="order-wrap">
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Purchased Date</th>
+              <th>Price (₹)</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="groupedOrderBody">
+            <tr>
+              <td colspan="5" class="muted">No grouped orders yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ======================
+       AUTH + KYC GATE
+    ====================== */
+    let AVAILABLE_CREDIT = 0;
+    let selectedMonths = null;
+    let amountValue = 0;
+    let creditReady = false;
+
+    (async function () {
+      // ✅ 1) Login check + get credit
+      const meRes = await fetch("/auth/me", { credentials: "include" });
+      if (!meRes.ok) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const me = await meRes.json();
+      document.getElementById("welcome").innerText = `Hello, ${me.name} 👋`;
+
+      AVAILABLE_CREDIT = Number(me.available_credit ?? 5000);
+      document.getElementById("availableCredit").innerText = `₹${AVAILABLE_CREDIT}`;
+
+      const streak = Number(me.streak ?? 0);
+      document.getElementById("streakCount").innerText = streak;
+
+      if (me.isAdmin) {
+        document.getElementById("adminBtn").style.display = "inline-block";
+      }
+
+      if (streak === 0) {
+        document.getElementById("streakBadge").className = "status-badge";
+        document.getElementById("streakBadge").style.background = "rgba(255,255,255,0.05)";
+        document.getElementById("streakBadge").style.color = "#aaa";
+      }
+
+      creditReady = true;
+
+      // ✅ 2) KYC check
+      const kycRes = await fetch("/api/kyc/status", { credentials: "include" });
+      const kyc = await kycRes.json();
+      if (kyc.kyc_status !== "APPROVED") {
+        window.location.href = "kyc.html";
+        return;
+      }
+
+      // ✅ 3) RISK SCORE (ADD IT HERE: after login + after KYC)
+      await loadRisk();
+
+      // ✅ 4) NOW load product/amount and calculate (after credit is ready)
+      loadSelectedProduct();
+      calculateBNPL();
+
+      // ✅ 5) Load order history
+      loadOrderHistory();
+    })();
+
+    /* ======================
+       RISK UI (NEW)
+    ====================== */
+    async function loadRisk() {
+      const card = document.getElementById("riskCard");
+      const levelEl = document.getElementById("riskLevel");
+      const scoreEl = document.getElementById("riskScore");
+      const msgEl = document.getElementById("riskMsg");
+
+      try {
+        const r = await fetch("/risk/recalc", { credentials: "include" });
+        const risk = await r.json();
+
+        if (!r.ok || !risk.ok) {
+          card.style.display = "block";
+          levelEl.textContent = "MEDIUM";
+          levelEl.className = "status-badge MEDIUM";
+          scoreEl.textContent = "--";
+          msgEl.textContent = "Risk score not available right now.";
+          return;
+        }
+
+        const level = String(risk.risk_level || "MEDIUM").toUpperCase();
+        const score = Number(risk.risk_score ?? 0);
+
+        card.style.display = "block";
+        levelEl.textContent = level;
+        levelEl.className = "status-badge " + level; // LOW/MEDIUM/HIGH
+        scoreEl.textContent = score;
+
+        if (level === "HIGH") {
+          msgEl.textContent = "⚠️ High risk: BNPL may be blocked.";
+        } else if (level === "MEDIUM") {
+          msgEl.textContent = "⚠️ Medium risk: BNPL allowed (watch limits).";
+        } else {
+          msgEl.textContent = "✅ Low risk: BNPL eligible.";
+        }
+
+        console.log("Risk:", risk);
+      } catch (e) {
+        card.style.display = "block";
+        levelEl.textContent = "MEDIUM";
+        levelEl.className = "status-badge MEDIUM";
+        scoreEl.textContent = "--";
+        msgEl.textContent = "Risk score error (check server route /risk).";
+      }
+    }
+
+    /* ======================
+       SELECTED PRODUCT (after credit)
+    ====================== */
+    function loadSelectedProduct() {
+      const selectedAmount = localStorage.getItem("bnpl_amount");
+      const productName = localStorage.getItem("bnpl_product_name");
+
+      if (productName) {
+        document.getElementById("selectedProduct").innerHTML =
+          `<b>${escapeHtml(productName)}</b> — Amount auto-filled`;
+      }
+
+      if (selectedAmount) {
+        document.getElementById("amount").value = selectedAmount;
+        document.getElementById("amount").readOnly = true;
+      }
+    }
+
+    /* ======================
+       BNPL CALC
+    ====================== */
+    function calculateBNPL() {
+      if (!creditReady) return;
+
+      const amount = parseInt(document.getElementById("amount").value, 10);
+      const msg = document.getElementById("creditMsg");
+
+      if (!amount || amount <= 0) {
+        msg.innerHTML = "";
+        document.getElementById("installments").style.display = "none";
+        document.getElementById("confirmBtn").disabled = true;
+        amountValue = 0;
+        return;
+      }
+
+      if (amount > AVAILABLE_CREDIT) {
+        msg.innerHTML = `<span style="color:#f87171; font-weight:700;">
+      ❌ Credit limit exceeded. Available: ₹${AVAILABLE_CREDIT}
+    </span>`;
+        document.getElementById("installments").style.display = "none";
+        document.getElementById("confirmBtn").disabled = true;
+        selectedMonths = null;
+        return;
+      }
+
+      msg.innerHTML = `<span style="color:#4ade80; font-weight:700;">
+    ✅ Eligible for BNPL. Available: ₹${AVAILABLE_CREDIT}
+  </span>`;
+
+      amountValue = amount;
+      document.getElementById("installments").style.display = "block";
+
+      document.getElementById("i3").innerText = "₹" + Math.ceil(amount / 3);
+      document.getElementById("i6").innerText = "₹" + Math.ceil(amount / 6);
+      document.getElementById("i12").innerText = "₹" + Math.ceil(amount / 12);
+
+      document.getElementById("confirmBtn").disabled = true;
+      selectedMonths = null;
+
+      document.querySelectorAll(".installment-card")
+        .forEach(card => card.classList.remove("active"));
+    }
+
+    function selectPlan(months) {
+      if (!creditReady) return;
+      if (amountValue > AVAILABLE_CREDIT) return;
+
+      selectedMonths = months;
+      document.querySelectorAll(".installment-card")
+        .forEach(card => card.classList.remove("active"));
+
+      document.getElementById("plan" + months).classList.add("active");
+      document.getElementById("confirmBtn").disabled = false;
+    }
+
+    /* ======================
+       CREATE ORDER (CALL BACKEND)
+    ====================== */
+    async function confirmBNPL() {
+      if (!amountValue || !selectedMonths) {
+        alert("Please complete all selections.");
+        return;
+      }
+
+      const product = (localStorage.getItem("bnpl_product_name") || "BNPL Purchase").trim();
+
+      const res = await fetch("/order/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          amount: amountValue,
+          months: selectedMonths,
+          product_name: product
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        alert(data.error || "Failed to create BNPL order");
+        return;
+      }
+
+      localStorage.removeItem("bnpl_amount");
+      localStorage.removeItem("bnpl_months");
+      localStorage.removeItem("bnpl_product_name");
+
+      window.location.reload();
+    }
+
+    /* ======================
+       ORDER HISTORY
+    ====================== */
+    async function loadOrderHistory() {
+      const personalTbody = document.getElementById("personalOrderBody");
+      const groupedTbody = document.getElementById("groupedOrderBody");
+
+      personalTbody.innerHTML = `<tr><td colspan="5" class="muted">Loading...</td></tr>`;
+      groupedTbody.innerHTML = `<tr><td colspan="5" class="muted">Loading...</td></tr>`;
+
+      const res = await fetch("/order/history", { credentials: "include" });
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        personalTbody.innerHTML = `<tr><td colspan="5" class="muted">Could not load history</td></tr>`;
+        groupedTbody.innerHTML = `<tr><td colspan="5" class="muted">Could not load history</td></tr>`;
+        return;
+      }
+
+      const orders = data.orders || [];
+      if (!orders.length) {
+        personalTbody.innerHTML = `<tr><td colspan="5" class="muted">No orders yet</td></tr>`;
+        groupedTbody.innerHTML = `<tr><td colspan="5" class="muted">No orders yet</td></tr>`;
+        return;
+      }
+
+      const personalOrders = orders.filter(o => !o.is_split_bnpl);
+      const groupedOrders = orders.filter(o => o.is_split_bnpl);
+
+      const renderTable = (o) => {
+        const date = (o.purchase_date ? String(o.purchase_date).slice(0, 10) :
+          (o.created_at ? String(o.created_at).slice(0, 10) : "-"));
+        const product = o.product_name || "BNPL Purchase";
+        const status = (o.status || "ACTIVE").toUpperCase();
+        const price = (o.total_amount ?? o.amount ?? "-");
+
+        return `
+          <tr>
+            <td>${escapeHtml(product)}</td>
+            <td>${date}</td>
+            <td>${price}</td>
+            <td><span class="status-badge ${status}">${status}</span></td>
+            <td><button class="btn btn-outline" onclick="viewInstallments(${o.id})">View</button></td>
+          </tr>
+        `;
+      };
+
+      personalTbody.innerHTML = personalOrders.length > 0
+        ? personalOrders.map(renderTable).join("")
+        : `<tr><td colspan="5" class="muted">No personal orders yet</td></tr>`;
+
+      groupedTbody.innerHTML = groupedOrders.length > 0
+        ? groupedOrders.map(renderTable).join("")
+        : `<tr><td colspan="5" class="muted">No grouped orders yet</td></tr>`;
+    }
+
+    async function viewInstallments(orderId) {
+      const modal = document.getElementById("instModal");
+      const list = document.getElementById("modalList");
+      const title = document.getElementById("modalTitle");
+
+      title.innerText = `Installments for Order #${orderId}`;
+      list.innerHTML = `<div class="muted">Loading...</div>`;
+      modal.style.display = "block";
+
+      const res = await fetch(`/order/${orderId}/installments`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        list.innerHTML = `<div style="color:#f87171;">Error: ${data.error || "Could not load"}</div>`;
+        return;
+      }
+
+      const installments = data.installments || [];
+      if (!installments.length) {
+        list.innerHTML = `<div class="muted">No installments found</div>`;
+        return;
+      }
+
+      list.innerHTML = installments.map(i => {
+        const date = String(i.due_date).slice(0, 10);
+        const status = (i.status || "PENDING").toUpperCase();
+        const canPay = status === "PENDING" || status === "OVERDUE";
+
+        return `
+          <div class="inst-item">
+            <div>
+              <b style="color:#facc15;">#${i.installment_no}</b> | ₹${i.amount}
+              <div class="muted">Due: ${date}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="status-badge ${status}">${status}</span>
+              ${canPay ? `<button class="btn btn-primary" style="padding:5px 15px; font-size:12px;" onclick="payInstallment(${i.id}, ${orderId})">Pay Now</button>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function payInstallment(instId, orderId) {
+      if (!confirm("Confirm payment for this installment?")) return;
+
+      const res = await fetch("/order/pay-installment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ installmentId: instId })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        alert(data.error || "Payment failed");
+        return;
+      }
+
+      alert("🎉 Payment Successful!");
+      // Refresh modal
+      viewInstallments(orderId);
+      // Refresh dashboard (credit etc)
+      refreshData();
+    }
+
+    function closeModal() {
+      document.getElementById("instModal").style.display = "none";
+    }
+
+    async function refreshData() {
+      // Re-fetch user data for credit
+      const meRes = await fetch("/auth/me", { credentials: "include" });
+      const me = await meRes.json();
+      AVAILABLE_CREDIT = Number(me.available_credit ?? 5000);
+      document.getElementById("availableCredit").innerText = `₹${AVAILABLE_CREDIT}`;
+
+      // Refresh history
+      loadOrderHistory();
+    }
+
+    window.onclick = function (event) {
+      const modal = document.getElementById("instModal");
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /* ======================
+       LOGOUT
+    ====================== */
+    async function logout() {
+      await fetch("/auth/logout", { credentials: "include" });
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+
+</body>
+
+</html>
