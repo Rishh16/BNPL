@@ -1,0 +1,667 @@
+/* ==========================
+   BNPL UI — Aesthetic + Interactive
+   Works for: login/signup/dashboard/products
+========================== */
+
+/* Google font optional (works even without import) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ---------- THEME TOKENS ---------- */
+:root {
+  --bg1: #000000;
+  --bg2: #1a1a1a;
+  --glass: rgba(255, 255, 255, .06);
+  --glass2: rgba(255, 255, 255, .10);
+  --border: rgba(255, 255, 255, .12);
+
+  --text: #ffffff;
+  --muted: #d4af37;
+
+  --primary1: #d4af37;
+  /* gold */
+  --primary2: #c0c0c0;
+  /* silver */
+  --good: #22c55e;
+  --bad: #ef4444;
+  --warn: #f59e0b;
+
+  --shadow: 0 20px 60px rgba(0, 0, 0, .45);
+  --radius: 18px;
+}
+
+/* ---------- RESET ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box
+}
+
+html,
+body {
+  height: 100%
+}
+
+body {
+  font-family: Inter, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+
+  /* Animated gradient background */
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(124, 58, 237, .35), transparent 60%),
+    radial-gradient(900px 500px at 90% 20%, rgba(6, 182, 212, .30), transparent 55%),
+    radial-gradient(800px 500px at 50% 90%, rgba(34, 197, 94, .15), transparent 55%),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
+}
+
+/* Floating aurora blobs */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -200px;
+  z-index: -1;
+  filter: blur(80px);
+  opacity: .55;
+  animation: floaty 10s ease-in-out infinite alternate;
+}
+
+body::before {
+  background: radial-gradient(circle at 30% 40%, rgba(124, 58, 237, .35), transparent 55%),
+    radial-gradient(circle at 70% 60%, rgba(6, 182, 212, .28), transparent 55%);
+}
+
+body::after {
+  background: radial-gradient(circle at 60% 30%, rgba(34, 197, 94, .20), transparent 55%),
+    radial-gradient(circle at 20% 70%, rgba(244, 63, 94, .18), transparent 55%);
+  animation-duration: 14s;
+}
+
+@keyframes floaty {
+  from {
+    transform: translate3d(-10px, -15px, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(20px, 15px, 0) scale(1.05);
+  }
+}
+
+/* ---------- GLOBAL LAYOUT ---------- */
+.center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 28px auto;
+  padding: 0 18px 40px;
+}
+
+h2 {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+p.subtitle {
+  margin-top: 6px;
+  color: rgba(229, 231, 235, .75);
+  line-height: 1.45;
+}
+
+/* ---------- NAVBAR ---------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  padding: 14px 18px;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, .06);
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.navwrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  font-size: 24px;
+}
+
+.brand::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary1), var(--primary2));
+  box-shadow: 0 0 18px rgba(124, 58, 237, .55);
+}
+
+.badge {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255, 255, 255, .14);
+  color: rgba(229, 231, 235, .9);
+}
+
+/* ---------- GRID (used in dashboard) ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 18px;
+}
+
+.col-12 {
+  grid-column: span 12;
+}
+
+.col-6 {
+  grid-column: span 6;
+}
+
+.col-4 {
+  grid-column: span 4;
+}
+
+@media (max-width: 900px) {
+
+  .col-6,
+  .col-4 {
+    grid-column: span 12;
+  }
+}
+
+/* ---------- GLASS CARD ---------- */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .06));
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(600px 220px at 20% 10%, rgba(124, 58, 237, .20), transparent 55%),
+    radial-gradient(500px 200px at 80% 30%, rgba(6, 182, 212, .18), transparent 55%);
+  pointer-events: none;
+  opacity: .7;
+}
+
+.card.sm {
+  width: 420px;
+  max-width: 92vw;
+  padding: 26px;
+}
+
+/* Titles used in your pages */
+.heroTitle {
+  font-size: 26px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.heroSub {
+  text-align: center;
+  margin-top: 8px;
+  color: rgba(229, 231, 235, .72);
+  font-size: 13px;
+}
+
+/* ---------- FORM ---------- */
+.field {
+  margin-top: 16px;
+  position: relative;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: rgba(229, 231, 235, .82);
+  letter-spacing: .3px;
+}
+
+.field input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(15, 23, 42, .35);
+  color: var(--text);
+  outline: none;
+  transition: .25s;
+}
+
+.field input::placeholder {
+  color: rgba(229, 231, 235, .45);
+}
+
+.field input:focus {
+  border-color: rgba(124, 58, 237, .55);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, .18),
+    0 0 0 1px rgba(6, 182, 212, .14) inset;
+  transform: translateY(-1px);
+}
+
+.hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(229, 231, 235, .65);
+}
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 18px;
+
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(400px 120px at 20% 0%, rgba(255, 255, 255, .18), transparent 55%);
+  opacity: 0;
+  transition: .2s;
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(.99);
+}
+
+.btn-primary {
+  width: 100%;
+  color: white;
+  background: linear-gradient(135deg, var(--primary1), var(--primary2));
+  box-shadow: 0 16px 40px rgba(124, 58, 237, .25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 55px rgba(6, 182, 212, .18), 0 20px 60px rgba(124, 58, 237, .22);
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: rgba(229, 231, 235, .92);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, .10);
+  transform: translateY(-2px);
+}
+
+/* ---------- FOOTER LINK ---------- */
+.footer {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(229, 231, 235, .72);
+}
+
+.footer a {
+  color: #a5b4fc;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- DASHBOARD STATS ---------- */
+.stat {
+  border-radius: 18px;
+  padding: 18px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .22);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+}
+
+.stat .label {
+  font-size: 12px;
+  color: rgba(229, 231, 235, .68);
+  letter-spacing: .2px;
+}
+
+.stat .value {
+  margin-top: 8px;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: .3px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, .14);
+  border: 1px solid rgba(124, 58, 237, .25);
+  color: rgba(229, 231, 235, .90);
+  font-size: 12px;
+}
+
+/* ---------- NOTICE / ALERT BOXES ---------- */
+.notice {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .06);
+}
+
+.notice.success {
+  border-color: rgba(34, 197, 94, .35);
+  background: rgba(34, 197, 94, .12);
+}
+
+.notice.danger {
+  border-color: rgba(239, 68, 68, .35);
+  background: rgba(239, 68, 68, .12);
+}
+
+/* ---------- PRODUCTS PAGE (works with your current products.html cards too) ---------- */
+#products {
+  margin-top: 18px;
+}
+
+/* Your products.html uses col-4 + card, so we enhance those cards automatically */
+#products .card {
+  padding: 16px;
+  border-radius: 18px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+#products .card:hover {
+  transform: translateY(-4px);
+}
+
+/* nicer product title + price */
+#products h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+#products h2 {
+  font-size: 20px;
+  margin-top: 8px;
+}
+
+/* category buttons row */
+.container button.btn-outline {
+  margin-right: 8px;
+  margin-bottom: 10px;
+}
+
+/* images inside product card */
+#products img {
+  border: 1px solid rgba(255, 255, 255, .14);
+}
+
+/* ---------- SMALL POLISH ---------- */
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(124, 58, 237, .45);
+  color: white;
+}
+
+.installment-box {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.installment-card {
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid transparent;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.installment-card:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.installment-card.selected {
+  border-color: #7c5cff;
+  background: rgba(124, 92, 255, 0.25);
+}
+
+input[type="number"],
+input[type="text"] {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 14px 16px;
+  border-radius: 12px;
+  outline: none;
+  font-size: 16px;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+input:focus {
+  border-color: #7c5cff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.emi-row {
+  margin: 10px 0;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+}
+
+.ok {
+  color: #4ade80;
+  font-weight: bold;
+}
+
+.late {
+  color: #f87171;
+  font-weight: bold;
+}
+
+.installment-card.active {
+  border: 2px solid #6c5ce7;
+  background: rgba(108, 92, 231, 0.2);
+}
+
+/* ==========================
+   KYC PAGE STYLES (Add at END)
+========================== */
+
+.kyc-wrap {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kyc-card {
+  width: 520px;
+  max-width: 92vw;
+  padding: 26px;
+}
+
+/* Header */
+.kyc-title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+.kyc-sub {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(229, 231, 235, .72);
+}
+
+/* Form grid */
+.kyc-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 560px) {
+  .kyc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Inputs + selects styled like your theme */
+.kyc-card input,
+.kyc-card select {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(15, 23, 42, .35);
+  color: var(--text);
+  outline: none;
+  transition: .25s;
+}
+
+.kyc-card input::placeholder {
+  color: rgba(229, 231, 235, .45);
+}
+
+.kyc-card select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(229, 231, 235, .7) 50%),
+    linear-gradient(135deg, rgba(229, 231, 235, .7) 50%, transparent 50%),
+    linear-gradient(to right, transparent, transparent);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%,
+    100% 0;
+  background-size: 6px 6px, 6px 6px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+  padding-right: 42px;
+}
+
+.kyc-card input:focus,
+.kyc-card select:focus {
+  border-color: rgba(124, 58, 237, .55);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, .18),
+    0 0 0 1px rgba(6, 182, 212, .14) inset;
+  transform: translateY(-1px);
+}
+
+/* Full-width rows */
+.kyc-full {
+  grid-column: span 2;
+}
+
+@media (max-width: 560px) {
+  .kyc-full {
+    grid-column: span 1;
+  }
+}
+
+/* Status box */
+.kyc-status {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .06);
+  text-align: center;
+  font-weight: 800;
+}
+
+.kyc-status.pending {
+  border-color: rgba(245, 158, 11, .35);
+  background: rgba(245, 158, 11, .12);
+  color: rgba(253, 230, 138, .95);
+}
+
+.kyc-status.approved {
+  border-color: rgba(34, 197, 94, .35);
+  background: rgba(34, 197, 94, .12);
+  color: rgba(187, 247, 208, .95);
+}
+
+.kyc-status.rejected {
+  border-color: rgba(239, 68, 68, .35);
+  background: rgba(239, 68, 68, .12);
+  color: rgba(254, 202, 202, .95);
+}
+
+/* Submit button spacing */
+.kyc-actions {
+  margin-top: 10px;
+}
+
+.kyc-actions .btn-primary {
+  width: 100%;
+}
