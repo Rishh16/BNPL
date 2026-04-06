@@ -1,0 +1,16 @@
+{
+  "name": "bnpl-hackathon",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.11.0",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.13",
+    "sqlite3": "^5.1.7"
+  }
+}
