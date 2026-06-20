@@ -1,89 +1,208 @@
-# Split BNPL Platform
+# 💳 BNPL (Buy Now Pay Later) E-Commerce Platform
 
-A full-stack Buy Now, Pay Later (BNPL) fintech application that allows users to purchase products and split payments into flexible installments. The platform incorporates user authentication, KYC verification, risk assessment, order management, and an admin dashboard to simulate a real-world lending workflow.
+A full-stack Buy Now Pay Later (BNPL) web application that enables users to purchase products on EMI, monitor available credit, view payment history, and manage installments. The platform also includes risk assessment, split/group purchase functionality, and an admin dashboard.
 
-## Features
+> **Note:** This project was developed for educational purposes to demonstrate BNPL workflows and financial technology concepts.
 
-* Secure User Registration & Login
-* KYC Verification System
-* Product Catalog Management
-* Split Payment (BNPL) Functionality
-* Risk Assessment & Eligibility Checks
-* Order Tracking
-* Admin Dashboard
-* Session-Based Authentication
-* SQLite Database Integration
+---
 
-## Tech Stack
+## 🚀 Live Demo
 
-**Frontend**
+https://bnpl-3.onrender.com/
 
-* HTML
-* CSS
-* JavaScript
+---
 
-**Backend**
+## 📸 Preview
 
-* Node.js
-* Express.js
+(Add screenshots of Login, Dashboard, Products, and Admin pages here.)
 
-**Database**
+---
 
-* SQLite
+## ✨ Features
 
-## System Workflow
+### 👤 User Module
+- User Registration & Login
+- Session-based Authentication
+- Secure Logout
+- Personalized Dashboard
 
-1. User signs up and logs in.
-2. User completes KYC verification.
-3. Risk engine evaluates eligibility.
-4. User selects products.
-5. BNPL plan is generated.
-6. Orders and repayment details are managed through the platform.
-7. Admin can monitor users, orders, and approvals.
+### 💳 BNPL Features
+- Available Credit Management
+- EMI Calculation (3, 6 & 12 Months)
+- Credit Eligibility Validation
+- Installment Payment Tracking
+- Order History
 
-## Project Structure
+### 🛍️ Product Module
+- Product Categories
+- Product Listing
+- Shopping Cart
+- BNPL Purchase Flow
 
-```text
-public/     -> Frontend pages
-routes/     -> API endpoints
-server.js   -> Express server
-db.js       -> Database connection
+### 👥 Split BNPL
+- Group Purchase Support
+- Shared Payment Distribution
+- Individual EMI Calculation
+
+### 📊 Risk Assessment
+- Risk Score Calculation
+- Credit Risk Levels (Low, Medium, High)
+- Dynamic Credit Evaluation
+
+### 👨‍💼 Admin Module
+- Admin Login
+- User Management
+- Product Management
+- Order Monitoring
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- SQLite3
+
+### Authentication
+- Express Session
+
+### Deployment
+- Render
+
+---
+
+## 📂 Project Structure
+
+```
+BNPL/
+│
+├── public/
+│   ├── login.html
+│   ├── signup.html
+│   ├── dashboard.html
+│   ├── products.html
+│   ├── cart.html
+│   ├── admin.html
+│   ├── admin-login.html
+│   ├── split-bnpl.html
+│   ├── style.css
+│   └── img/
+│
+├── routes/
+│   ├── auth.js
+│   ├── admin.js
+│   ├── products.js
+│   ├── order.js
+│   ├── risk.js
+│   └── split-bnpl.js
+│
+├── server.js
+├── db.js
+├── setup-sqlite.js
+├── package.json
+└── README.md
 ```
 
-## Installation
+---
+
+## ⚙️ Installation
+
+Clone the repository
 
 ```bash
-git clone <repository-url>
-cd bnpl-hackathon
+git clone https://github.com/Rishh16/BNPL.git
+```
+
+Navigate to the project
+
+```bash
+cd BNPL
+```
+
+Install dependencies
+
+```bash
 npm install
+```
+
+Initialize the SQLite database
+
+```bash
+node setup-sqlite.js
+```
+
+Start the server
+
+```bash
 npm start
 ```
 
-Open:
+Open your browser
 
-```text
+```
 http://localhost:5001
 ```
 
-## Key Learning Outcomes
+---
 
-* Full-Stack Web Development
-* REST API Design
-* Authentication & Session Management
-* Database Integration
-* Fintech Workflow Simulation
-* Backend Route Architecture
+## 🎯 Learning Outcomes
 
-## Future Improvements
+This project helped me learn:
 
-* Credit Score Integration
-* Payment Gateway Integration
-* Email & SMS Notifications
-* EMI Calculator
-* Advanced Analytics Dashboard
+- Full-Stack Web Development
+- REST API Development
+- Express.js Routing
+- Session-Based Authentication
+- SQLite Database Design
+- EMI & Credit Limit Logic
+- Risk Assessment Implementation
+- Group Purchase Workflow
+- CRUD Operations
+- Responsive UI Design
+- Deployment using Render
+- Git & GitHub Version Control
 
-## Author
+---
+
+## 🌐 Deployment
+
+The application is deployed using **Render**.
+
+---
+
+## 📌 Future Enhancements
+
+- OTP Verification
+- Email Notifications
+- Payment Gateway Integration (Razorpay/Stripe)
+- Credit Card & UPI Payments
+- AI-Based Credit Scoring
+- Loan Approval Prediction
+- Admin Analytics Dashboard
+- User Profile Management
+- Product Search & Filters
+- Wishlist Functionality
+- JWT Authentication
+- Password Encryption using bcrypt
+
+---
+
+## 👩‍💻 Author
 
 **Rishika Nakirtha**
 
-B.Tech Student | Full-Stack Development | FinTech Projects
+GitHub: https://github.com/Rishh16
+
+---
+
+## 📄 License
+
+This project is developed for educational and portfolio purposes only.
