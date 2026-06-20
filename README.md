@@ -11,6 +11,12 @@ A full-stack Buy Now Pay Later (BNPL) web application that enables users to purc
 https://bnpl-3.onrender.com/
 
 ---
+## 📸 Preview
+
+<img width="993" height="670" alt="image" src="https://github.com/user-attachments/assets/1f29d07b-3604-422c-b9f9-4009f50064f8" />
+<img width="1404" height="793" alt="image" src="https://github.com/user-attachments/assets/e1894f75-d11e-4b9b-83e4-b4b32411e1c9" />
+
+...
 
 ## ✨ Features
 
