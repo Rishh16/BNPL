@@ -16,7 +16,7 @@ const adminRoutes = require("./routes/admin");
 
 // ================== APP INIT ==================
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 // ================== MIDDLEWARE ==================
 app.use(express.json());
@@ -40,7 +40,7 @@ app.use(
 
 // health check
 app.get("/", (req, res) => {
-  res.send("✅ BNPL Backend Running");
+  res.sendFile(path.join(__dirname, "public/split-bnpl.html"));
 });
 
 // Serve KYC page directly for clean URL
