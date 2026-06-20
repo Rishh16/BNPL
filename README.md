@@ -12,12 +12,6 @@ https://bnpl-3.onrender.com/
 
 ---
 
-## 📸 Preview
-
-(Add screenshots of Login, Dashboard, Products, and Admin pages here.)
-
----
-
 ## ✨ Features
 
 ### 👤 User Module
